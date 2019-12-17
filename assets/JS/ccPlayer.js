@@ -54,22 +54,7 @@ cc.Class({
 			default:0,
 			type:cc.float,
 			visible:false
-		},
-        // foo: {
-        //     // ATTRIBUTES:
-        //     default: null,        // The default value will be used only when the component attaching
-        //                           // to a node for the first time
-        //     type: cc.SpriteFrame, // optional, default is typeof default
-        //     serializable: true,   // optional, default is true
-        // },
-        // bar: {
-        //     get () {
-        //         return this._bar;
-        //     },
-        //     set (value) {
-        //         this._bar = value;
-        //     }
-        // },
+		}
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -77,20 +62,18 @@ cc.Class({
     onLoad () {
 		cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN,this.onKeyDown,this);
 		cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP,this.onKeyUp,this);
-		{
 		this.STATE.IDLE=0;
 		this.STATE.RUN=1;
 		this.STATE.JUMP=2;
 		this.STATE.FALL=3;
-		}
 		this.Origin_Y=this.node.y;
 	},
 	onDestroy () {
         cc.systemEvent.off(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
         cc.systemEvent.off(cc.SystemEvent.EventType.KEY_UP, this.onKeyUp, this);
     },
-	onKeyDown: function (event) {
-        switch(event.keyCode) {
+	onKeyDown(event1) {
+        switch(event1.keyCode) {
             case cc.macro.KEY.d:{
                 console.log('Press d key');
                 break;
@@ -101,9 +84,8 @@ cc.Class({
 			}
         }
     },
-
-    onKeyUp: function (event) {
-        switch(event.keyCode) {
+    onKeyUp(event1) {
+        switch(event1.keyCode) {
             case cc.macro.KEY.d:{
                 console.log('release d key');
                 break;
@@ -121,13 +103,13 @@ cc.Class({
 	},
 	ChangeState(sta){
 		switch(sta){
-			case:this.STATE.RUN:{
+			case this.STATE.RUN:{
 				if(_CurrentState===this.STATE.IDLE){
 					this._CurrentState=this.STATE.RUN;
 				}
 				break;
 			}
-			case:this.STATE.JUMP:{
+			case this.STATE.JUMP:{
 				if(_CurrentState===this.STATE.IDLE){
 					this.FallSpeed=-this.JumpPower;
 					this._CurrentState=this.STATE.JUMP;
@@ -138,7 +120,7 @@ cc.Class({
 				}
 				break;
 			}
-			case: this.STATE.IDLE:{
+			case this.STATE.IDLE:{
 				if(_CurrentState===this.STATE.JUMP){
 					this._CurrentState=this.STATE.IDLE;
 				}
@@ -171,7 +153,7 @@ cc.Class({
 	},
 	onControl(){
 		
-	}
+	},
 	start () {
 
     },
