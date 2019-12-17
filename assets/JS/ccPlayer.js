@@ -12,14 +12,31 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
-		runSpeed:{
+		_CurrentState:{
+			default:0,
+			visible:false
+		},
+		STATE:{
+			default:{},
+			visible:false
+		},
+		Origin_Y:{
+			default:0,
+			type:cc.float,
+			visibility:false
+		},
+		RunSpeed:{
 			default:0,
 			type:cc.float
 		},
-		runSpeedPlus:{
+		RunSpeedPlus:{
 			default:10,
 			type:cc.float
-		}
+		},
+		GRAVITY:{
+			default:9.8,
+			type:cc.float
+		},
         // foo: {
         //     // ATTRIBUTES:
         //     default: null,        // The default value will be used only when the component attaching
@@ -39,13 +56,34 @@ cc.Class({
 
     // LIFE-CYCLE CALLBACKS:
 
-    // onLoad () {},
-	running(){
-		
+    onLoad () {
+		{
+		this.STATE.IDLE=0;
+		this.STATE.RUN=1;
+		this.STATE.JUMP=2;
+		this.STATE.FALL=3;
+		}
+		this.Origin_Y=this.node.y;
+	},
+	execGravity(dt){
+		if(this.Origin_Y==this.node.y){return;}
+		this.node.y=Math.max(this.Origin_Y,this.node.y-this.GRAVITY*dt);
+	},
+
+	Running(){
+		//this.RunSpeed+=this.RunSpeedPlus*
 	},
     start () {
 
-    }
+    },
 
-    // update (dt) {},
+    update (dt) {
+		switch(_CurrentState){
+			case this.STATE.IDLE:{break;}
+			case this.STATE.RUN:{break;}
+			case this.STATE.JUMP:{break;}
+			case this.STATE.FALL:{break;}
+		}
+		execGravity(dt);
+	},
 });
