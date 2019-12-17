@@ -23,10 +23,14 @@ cc.Class({
 		Origin_Y:{
 			default:0,
 			type:cc.float,
-			visibility:false
+			visible:false
 		},
 		RunSpeed:{
 			default:0,
+			type:cc.float
+		},
+		RunSpeedMax:{
+			default:40,
 			type:cc.float
 		},
 		RunSpeedPlus:{
@@ -36,6 +40,20 @@ cc.Class({
 		GRAVITY:{
 			default:9.8,
 			type:cc.float
+		},
+		JumpPower:{
+			default:40,
+			type:cc.float
+		},
+		FallSpeed:{
+			default:0,
+			type:cc.float,
+			visible:false
+		},
+		distanceAlreadyRun:{
+			default:0,
+			type:cc.float,
+			visible:false
 		},
         // foo: {
         //     // ATTRIBUTES:
@@ -57,6 +75,8 @@ cc.Class({
     // LIFE-CYCLE CALLBACKS:
 
     onLoad () {
+		cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN,this.onKeyDown,this);
+		cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP,this.onKeyUp,this);
 		{
 		this.STATE.IDLE=0;
 		this.STATE.RUN=1;
@@ -65,25 +85,98 @@ cc.Class({
 		}
 		this.Origin_Y=this.node.y;
 	},
-	execGravity(dt){
-		if(this.Origin_Y==this.node.y){return;}
-		this.node.y=Math.max(this.Origin_Y,this.node.y-this.GRAVITY*dt);
-	},
-
-	Running(){
-		//this.RunSpeed+=this.RunSpeedPlus*
-	},
-    start () {
-
+	onDestroy () {
+        cc.systemEvent.off(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
+        cc.systemEvent.off(cc.SystemEvent.EventType.KEY_UP, this.onKeyUp, this);
+    },
+	onKeyDown: function (event) {
+        switch(event.keyCode) {
+            case cc.macro.KEY.d:{
+                console.log('Press d key');
+                break;
+			}
+			case cc.macro.KEY.space:{
+				console.log('Press space key');
+				break;
+			}
+        }
     },
 
-    update (dt) {
-		switch(_CurrentState){
-			case this.STATE.IDLE:{break;}
-			case this.STATE.RUN:{break;}
-			case this.STATE.JUMP:{break;}
+    onKeyUp: function (event) {
+        switch(event.keyCode) {
+            case cc.macro.KEY.d:{
+                console.log('release d key');
+                break;
+			}
+			case cc.macro.KEY.space:{
+                console.log('release space key');
+                break;
+			}
+        }
+    },
+	execGravity(dt){
+		if(this.Origin_Y==this.node.y){return;}
+		this.FallSpeed+=this.GRAVITY*dt;
+		this.node.y=Math.max(this.Origin_Y,this.node.y-this.FallSpeed*dt);
+	},
+	ChangeState(sta){
+		switch(sta){
+			case:this.STATE.RUN:{
+				if(_CurrentState===this.STATE.IDLE){
+					this._CurrentState=this.STATE.RUN;
+				}
+				break;
+			}
+			case:this.STATE.JUMP:{
+				if(_CurrentState===this.STATE.IDLE){
+					this.FallSpeed=-this.JumpPower;
+					this._CurrentState=this.STATE.JUMP;
+				}
+				if(_CurrentState===this.STATE.RUN){
+					this.FallSpeed=-this.JumpPower;
+					this._CurrentState=this.STATE.JUMP;
+				}
+				break;
+			}
+			case: this.STATE.IDLE:{
+				if(_CurrentState===this.STATE.JUMP){
+					this._CurrentState=this.STATE.IDLE;
+				}
+				break;
+			}
+		}
+	},
+	onState(dt){
+		switch(this._CurrentState){
+			case this.STATE.IDLE:{
+				this.RunSpeed=Math.max(0,this.RunSpeed-this.RunSpeedPlus*2*dt);
+				this.distanceAlreadyRun+=this.RunSpeed*dt;
+				break;
+			}
+			case this.STATE.RUN:{
+				//animation
+				this.RunSpeed=Math.min(this.RunSpeedMax,this.RunSpeed+this.RunSpeedPlus*dt);
+				this.distanceAlreadyRun+=this.RunSpeed*dt;
+				break;
+			}
+			case this.STATE.JUMP:{
+				if(FallSpeed<0){break;}
+				if(this.Origin_Y==this.node.y){
+					ChangeState(this.STATE.IDLE);
+				}
+				break;
+			}
 			case this.STATE.FALL:{break;}
 		}
-		execGravity(dt);
 	},
+	onControl(){
+		
+	}
+	start () {
+
+    },
+    update (dt) {
+		onState(dt);
+		execGravity(dt);
+	}
 });
